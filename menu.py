@@ -3,7 +3,6 @@ import os
 
 ARCHIVO_CLIENTES = "clientes.txt"
 ARCHIVO_ASISTENCIAS = "asistencias.txt"
-ARCHIVO_REPORTE = "reporte_gimnasio.txt"
 
 clientes = {}
 asistencias = []
@@ -42,9 +41,6 @@ def cargar_datos():
                     asistencias.append({"cedula": cedula, "fecha": datetime.strptime(fecha_str, "%Y-%m-%d")})
 
 
-def guardar_reporte(texto):
-    with open(ARCHIVO_REPORTE, "w", encoding="utf-8") as f:
-        f.write(texto)
 
 def guardar_datos():
     with open(ARCHIVO_CLIENTES, "w", encoding="utf-8") as f:
@@ -116,7 +112,7 @@ def registrar_pago():
     fecha_pago = datetime.now()
     cliente = clientes[cedula]
     cliente['pagos'].append({'fecha': fecha_pago, 'monto': monto})
-    cliente['fecha_renovacion'] = fecha_pago + timedelta(days=30)
+    cliente['fecha_renovacion'] = fecha_pago + timedelta(seconds=60)
     cliente['activo'] = True
     guardar_datos()
     print(f"\nPago registrado para {cliente['nombre']} el {fecha_pago.date()}.\n")
@@ -136,80 +132,114 @@ def registrar_asistencia():
     guardar_datos()
     print(f"\nAsistencia registrada para {cliente['nombre']}.\n")
 
+def modificar_cliente():
+    cedula = input("Ingrese la cédula del cliente a modificar: ")
+    if cedula not in clientes:
+        print("Cliente no encontrado.")
+        return
+
+    cliente = clientes[cedula]
+    print(f"Datos actuales: Nombre: {cliente['nombre']}, Contacto: {cliente['contacto']}, Membresía: {cliente['tipo_membresia']}")
+
+    nuevo_nombre = input("Nuevo nombre (dejar vacío para no modificar): ")
+    nuevo_contacto = input("Nuevo contacto (dejar vacío para no modificar): ")
+    nuevo_tipo = input("Nuevo tipo de membresía (mensual o diaria, dejar vacío para no modificar): ")
+
+    if nuevo_nombre:
+        cliente['nombre'] = nuevo_nombre
+    if nuevo_contacto:
+        cliente['contacto'] = nuevo_contacto
+    if nuevo_tipo.lower() in ["mensual", "diaria"]:
+        cliente['tipo_membresia'] = nuevo_tipo
+
+    guardar_datos()
+    print("Datos actualizados correctamente.")
+
+def buscar_cliente():
+    cedula = input("Ingrese la cédula del cliente a buscar: ")
+    if cedula in clientes:
+        c = clientes[cedula]
+        print(f"Nombre: {c['nombre']}\nContacto: {c['contacto']}\nMembresía: {c['tipo_membresia']}\nEstado: {'Activo' if c['activo'] else 'Inactivo'}\nInicio: {c['fecha_inicio'].date()}\nRenovación: {c['fecha_renovacion'].date()}")
+    else:
+        print("Cliente no encontrado.")
+
 def generar_reportes():
+    print("\n--- Generar Reportes de Asistencia ---")
+    print("1. Reporte semanal")
+    print("2. Reporte mensual")
+    opcion = input("Seleccione una opción: ")
+
     hoy = datetime.now()
-    semana_pasada = hoy - timedelta(days=7)
-    mes_pasado = hoy - timedelta(days=30)
+    if opcion == "1":
+        desde_fecha = hoy - timedelta(days=7)
+        titulo = "--- Reporte Semanal ---"
+    elif opcion == "2":
+        desde_fecha = hoy - timedelta(days=30)
+        titulo = "--- Reporte Mensual ---"
+    else:
+        print("Opción inválida.")
+        return
 
-    reporte = []
-    reporte.append("--- Reporte Semanal de Asistencias ---")
+    reporte = [titulo + "\n"]
+    print(titulo + "\n")
+
+    reporte.append("--- Asistencias ---")
+    print("--- Asistencias ---")
     for asistencia in asistencias:
-        if asistencia['fecha'] >= semana_pasada:
+        if asistencia['fecha'] >= desde_fecha:
             nombre = clientes.get(asistencia['cedula'], {}).get('nombre', 'Desconocido')
             linea = f"{nombre} asistió el {asistencia['fecha'].date()}"
-            print("--- Reporte Semanal de Asistencias ---")
             print(linea)
             reporte.append(linea)
 
-    reporte.append("\n--- Reporte Mensual de Asistencias ---")
-    for asistencia in asistencias:
-        if asistencia['fecha'] >= mes_pasado:
-            nombre = clientes.get(asistencia['cedula'], {}).get('nombre', 'Desconocido')
-            linea = f"{nombre} asistió el {asistencia['fecha'].date()}"
-            print("\n--- Reporte Mensual de Asistencias ---")
-            print(linea)
-            reporte.append(linea)
-
-    reporte.append("\n--- Pagos por Membresía (Último mes) ---")
+    reporte.append("\n--- Pagos por Membresía ---")
+    print("\n--- Pagos por Membresía ---")
     total_mensual = 0
     total_diaria = 0
     for cliente in clientes.values():
         for pago in cliente['pagos']:
-            if pago['fecha'] >= mes_pasado:
+            if pago['fecha'] >= desde_fecha:
+                linea = f"{cliente['nombre']} pagó {pago['monto']} C$ el {pago['fecha'].date()}"
+                print(linea)
+                reporte.append(linea)
                 if cliente['tipo_membresia'] == 'mensual':
                     total_mensual += pago['monto']
                 elif cliente['tipo_membresia'] == 'diaria':
                     total_diaria += pago['monto']
     linea_mensual = f"Total Pagado por membresía mensual: {total_mensual} C$"
     linea_diaria = f"Total Pagado por membresía diaria: {total_diaria} C$"
-    print("\n--- Pagos por Membresía (Último mes) ---")
     print(linea_mensual)
     print(linea_diaria)
     reporte.append(linea_mensual)
     reporte.append(linea_diaria)
 
     reporte.append("\n--- Estado de Clientes ---")
+    print("\n--- Estado de Clientes ---")
     for cedula, cliente in clientes.items():
         estado = "Activo" if cliente['activo'] else "Inactivo"
         linea = f"{cliente['nombre']} - {estado}"
-        print("\n--- Estado de Clientes ---")
         print(linea)
         reporte.append(linea)
 
-    reporte.append("\n--- Reporte General de Pagos ---")
-    total_general = 0
-    for cliente in clientes.values():
-        nombre = cliente['nombre']
-        pagos = cliente['pagos']
-        for pago in pagos:
-            periodo = pago.get('periodo', 'No especificado')
-            linea = f"{nombre} pagó {pago['monto']} C$ el {pago['fecha'].date()}"
-            print(linea)
-            reporte.append(linea)
-            total_general += pago['monto']
-    total_linea = f"\nTOTAL GENERAL DE PAGOS: {total_general} C$"
-    print(total_linea)
-    reporte.append(total_linea)
+    with open("reporte_semanal.txt" if opcion == "1" else "reporte_mensual.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join(reporte))
 
-    guardar_reporte("\n".join(reporte))
 
 def verificar_alertas():
     hoy = datetime.now()
+    inactivos = []
     for cliente in clientes.values():
         if cliente['fecha_renovacion'] < hoy:
             cliente['activo'] = False
     guardar_datos()
     print("\nVerificación completada. Clientes con membresía vencida fueron marcados como inactivos.\n")
+    if inactivos:
+        print("Clientes inactivos:")
+        for nombre in inactivos:
+            print("-", nombre)
+    else:
+        print("No hay clientes inactivos.")
+
 
 def eliminar_cliente():
     cedula = input("Cédula del cliente a eliminar: ")
@@ -229,9 +259,11 @@ def menu():
         print("1. Registrar nuevo cliente")
         print("2. Registrar pago")
         print("3. Registrar asistencia")
-        print("4. Generar reportes")
-        print("5. Verificar membresías vencidas")
-        print("6. Eliminar cliente")
+        print("4. Modificar datos de cliente")
+        print("5. Buacar cliente")
+        print("6. Generar reportes")
+        print("7. Verificar membresías vencidas")
+        print("8. Eliminar cliente")
         print("0. Salir")
         opcion = input("Seleccione una opción: ")
 
@@ -242,10 +274,14 @@ def menu():
         elif opcion == "3":
             registrar_asistencia()
         elif opcion == "4":
-            generar_reportes()
+            modificar_cliente()
         elif opcion == "5":
-            verificar_alertas()
+            buscar_cliente()
         elif opcion == "6":
+            generar_reportes()
+        elif opcion == "7":
+            verificar_alertas()
+        elif opcion == "8":
             eliminar_cliente()
         elif opcion == "0":
             print("Saliendo del sistema...")
