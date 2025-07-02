@@ -71,12 +71,6 @@ def validar_entrada(nombre, cedula, contacto, tipo_membresia):
         return False, "El tipo de membresía debe ser 'mensual' o 'diaria'."
     return True, ""
 
-def registrar_cliente():
-    nombre = input("Nombre del cliente: ")
-    cedula = input("Cédula del cliente: ")
-    contacto = input("Teléfono o contacto: ")
-    tipo_membresia = input("Tipo de membresía (mensual o diaria): ")
-
     valido, mensaje = validar_entrada(nombre, cedula, contacto, tipo_membresia)
     if not valido:
         print(mensaje)
