@@ -1,3 +1,9 @@
+
+from datetime import datetime
+from datos import clientes, guardar_datos
+from utilidades import validar_entrada
+
+
 def registrar_cliente():
     nombre = input("Nombre del cliente: ")
     cedula = input("Cédula del cliente: ")
