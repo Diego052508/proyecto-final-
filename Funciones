@@ -71,60 +71,29 @@ def validar_entrada(nombre, cedula, contacto, tipo_membresia):
         return False, "El tipo de membresía debe ser 'mensual' o 'diaria'."
     return True, ""
 
-
-ef registrar_pago_modular(clientes_dict):
-    
-    Función modular para registrar un pago.
-    Parámetros:
-      - clientes_dict: diccionario donde se almacenan los clientes.
-    Retorna:
-      - tuple (exito: bool, mensaje: str)
-    
-
-     Solicita al usuario la cédula del cliente
-    cedula = input("Cédula del cliente: ").strip()
-
-     Verifica si el cliente existe en el diccionario
-    if cedula not in clientes_dict:
-        return False, "Cliente no encontrado."
+def registrar_pago():
+    cedula = input("Cédula del cliente: ")
+    if cedula not in clientes:
+        print("Cliente no encontrado.")
+        return
 
     try:
-         Solicita el monto pagado y lo convierte a número
         monto = float(input("Monto pagado: "))
     except ValueError:
-         Si la conversión falla, retorna error
-        return False, "Monto inválido."
+        print("Monto inválido.")
+        return
 
-     Obtiene la fecha y hora actual para registrar el pago
     fecha_pago = datetime.now()
-
-     Obtiene la información del cliente del diccionario
-    cliente = clientes_dict[cedula]
-
-     Agrega el pago a la lista de pagos del cliente
+    cliente = clientes[cedula]
     cliente['pagos'].append({'fecha': fecha_pago, 'monto': monto})
-
-     Calcula y actualiza la nueva fecha de renovación:
-     30 días para membresía mensual, 1 día para diaria
-    if cliente['tipo_membresia'] == "mensual":
-        cliente['fecha_renovacion'] = fecha_pago + timedelta(days=30)
-    else:
-        cliente['fecha_renovacion'] = fecha_pago + timedelta(days=1)
-
-     Activa la membresía del cliente
+    cliente['fecha_renovacion'] = fecha_pago + timedelta(seconds=60)
     cliente['activo'] = True
-
-     Guarda los cambios en el archivo correspondiente
     guardar_datos()
+    print(f"\nPago registrado para {cliente['nombre']} el {fecha_pago.date()}.\n")
+from datetime import datetime
+from datos import clientes, asistencias, guardar_datos
 
-    Muestra un mensaje de confirmación con el formato especial con "K"
-    print(f"K Pago registrado para {cliente['nombre']}.".center(50, 'K'))
-
-     Devuelve éxito y un mensaje resumido
-    return True, f"Pago registrado para {cliente['nombre']} el {fecha_pago.date()}."
-
-
-def registrar_asistencia():
+ef registrar_asistencia():
     cedula = input("Cédula del cliente: ")
     if cedula not in clientes:
         print("Cliente no encontrado.")
@@ -138,7 +107,6 @@ def registrar_asistencia():
     asistencias.append({'cedula': cedula, 'fecha': datetime.now()})
     guardar_datos()
     print(f"\nAsistencia registrada para {cliente['nombre']}.\n")
-
 def generar_reportes():
     print("\n--- Generar Reportes de Asistencia ---")
     print("1. Reporte semanal")
@@ -149,7 +117,20 @@ def generar_reportes():
     if opcion == "1":
         desde_fecha = hoy - timedelta(days=7)
         titulo = "--- Reporte Semanal ---"
-    elif opcion == "2":
+    elif opcion ==ef registrar_asistencia():
+    cedula = input("Cédula del cliente: ")
+    if cedula not in clientes:
+        print("Cliente no encontrado.")
+        return
+
+    cliente = clientes[cedula]
+    if not cliente['activo']:
+        print("Cliente con membresía vencida o inactiva.")
+        return
+
+    asistencias.append({'cedula': cedula, 'fecha': datetime.now()})
+    guardar_datos()
+    print(f"\nAsistencia registrada para {cliente['nombre']}.\n") "2":
         desde_fecha = hoy - timedelta(days=30)
         titulo = "--- Reporte Mensual ---"
     else:
@@ -158,6 +139,8 @@ def generar_reportes():
 
     reporte = [titulo + "\n"]
     print(titulo + "\n")
+from datetime import datetime, timedelta
+from datos import clientes, asistencias, guardar_datos
 
     reporte.append("--- Asistencias ---")
     print("--- Asistencias ---")
@@ -201,20 +184,13 @@ def generar_reportes():
         f.write("\n".join(reporte))
 
 
-def verificar_alertas():
+verificar_alertas():
     hoy = datetime.now()
-    inactivos = []
     for cliente in clientes.values():
         if cliente['fecha_renovacion'] < hoy:
             cliente['activo'] = False
     guardar_datos()
     print("\nVerificación completada. Clientes con membresía vencida fueron marcados como inactivos.\n")
-    if inactivos:
-        print("Clientes inactivos:")
-        for nombre in inactivos:
-            print("-", nombre)
-    else:
-        print("No hay clientes inactivos.")
 
 def menu():
     while True:
