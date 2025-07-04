@@ -84,5 +84,29 @@ def generar_reportes():
     print("\n--- Estado de Clientes ---")
 
     # Recorre todos los clientes y muestra si están activos o no
+   reporte.append("\n--- Estado de Clientes ---")
+    print("\n--- Estado de Clientes ---")
     for cedula, cliente in clientes.items():
-        estado = "Activo" if cliente['activo']
+        estado = "Activo" if cliente['activo'] else "Inactivo"
+        linea = f"{cliente['nombre']} - {estado}"
+        print(linea)
+        reporte.append(linea)
+
+    with open("reporte_semanal.txt" if opcion == "1" else "reporte_mensual.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join(reporte))
+
+# Verifica clientes con membresía vencida y los marca como inactivos
+def verificar_alertas():
+    hoy = datetime.now()
+    inactivos = []
+    for cliente in clientes.values():
+        if cliente['fecha_renovacion'] < hoy:
+            cliente['activo'] = False
+    guardar_datos()
+    print("\nVerificación completada. Clientes con membresía vencida fueron marcados como inactivos.\n")
+    if inactivos:
+        print("Clientes inactivos:")
+        for nombre in inactivos:
+            print("-", nombre)
+    else:
+        print("No hay clientes inactivos.")
