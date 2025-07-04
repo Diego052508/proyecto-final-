@@ -6,7 +6,7 @@ ARCHIVO_ASISTENCIAS = "asistencias.txt"
 
 clientes = {}
 asistencias = []
-
+#se cargargan los diferentes tipos de datos 
 def cargar_datos():
     global clientes, asistencias
     if os.path.exists(ARCHIVO_CLIENTES):
@@ -41,7 +41,7 @@ def cargar_datos():
                     asistencias.append({"cedula": cedula, "fecha": datetime.strptime(fecha_str, "%Y-%m-%d")})
 
 
-
+#se guardan los datos
 def guardar_datos():
     with open(ARCHIVO_CLIENTES, "w", encoding="utf-8") as f:
         for cedula, cliente in clientes.items():
@@ -71,6 +71,7 @@ def validar_entrada(nombre, cedula, contacto, tipo_membresia):
         return False, "El tipo de membresía debe ser 'mensual' o 'diaria'."
     return True, ""
 
+# se registra el pago para el cliente
 def registrar_pago():
     cedula = input("Cédula del cliente: ")
     if cedula not in clientes:
