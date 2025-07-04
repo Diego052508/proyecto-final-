@@ -33,6 +33,7 @@ def generar_reportes():
     # ----- Sección de asistencias -----
     reporte.append("--- Asistencias ---")
     print("--- Asistencias ---")
+
     
     # Se recorren todas las asistencias registradas
     for asistencia in asistencias:
