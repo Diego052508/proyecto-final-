@@ -52,6 +52,7 @@ def modificar_cliente():
     guardar_datos() # se guarda los nuevos datos 
     print("Datos actualizados correctamente.")
 
+#se define la funcion para buscar un cliente introduciend la cedula
 def buscar_cliente():
     cedula = input("Ingrese la cédula del cliente a buscar: ") #busca al cliente segun su cedula
     if cedula in clientes:
@@ -60,7 +61,7 @@ def buscar_cliente():
         print(f"Nombre: {c['nombre']}\nContacto: {c['contacto']}\nMembresía: {c['tipo_membresia']}\nEstado: {'Activo' if c['activo'] else 'Inactivo'}\nInicio: {c['fecha_inicio'].date()}\nRenovación: {c['fecha_renovacion'].date()}")
     else:
         print("Cliente no encontrado.")
-
+#se defina la funcion para eliminar un cliente 
 def eliminar_cliente():
     cedula = input("Cédula del cliente a eliminar: ") #busca al cliente segun su cedula
     from datos import asistencias  # evitar import circular
