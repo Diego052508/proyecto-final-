@@ -1,4 +1,7 @@
+#Aqui importa las fechas
 from datetime import datetime, timedelta
+
+#Aqui importa los datos de cliente
 from datos import clientes, asistencias, guardar_datos
 
 # Función para generar reportes de asistencia y pagos de los clientes
