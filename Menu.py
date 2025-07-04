@@ -1,8 +1,10 @@
+# Importa fnciones de otro mudulo.
 from gestion_clientes import registrar_cliente, modificar_cliente, buscar_cliente, eliminar_cliente
 from pagos import registrar_pago
 from asistencias import registrar_asistencia
 from reportes import generar_reportes, verificar_alertas
 
+# Define una función para mostrar el menú principal del sistema.
 def mostrar_menu():
     while True:
         print("\n--- MENÚ DEL SISTEMA GIMNASIO ---")
@@ -15,7 +17,11 @@ def mostrar_menu():
         print("7. Verificar membresías vencidas")
         print("8. Eliminar cliente")
         print("0. Salir")
+
+        #Aqui pide que el usuario elija una funcion
         opcion = input("Seleccione una opción: ")
+        
+        #Segun lo elegido llama a dicha funcion
 
         if opcion == "1":
             registrar_cliente()
@@ -38,7 +44,7 @@ def mostrar_menu():
             break
         else:
             print("Opción inválida.")
-
+#Aqui manda a llamar las funciones
 if __name__ == "__main__":
     cargar_datos()
     mostrar_menu()
