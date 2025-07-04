@@ -83,8 +83,6 @@ def registrar_pago():
     except ValueError:
         print("Monto inválido.")
         return
-    
-   
 
     fecha_pago = datetime.now()
     cliente = clientes[cedula]
@@ -93,6 +91,16 @@ def registrar_pago():
     cliente['activo'] = True
     guardar_datos()
     print(f"\nPago registrado para {cliente['nombre']} el {fecha_pago.date()}.\n")
+
+
+    fecha_pago = datetime.now()
+    cliente = clientes[cedula]
+    cliente['pagos'].append({'fecha': fecha_pago, 'monto': monto})
+    cliente['fecha_renovacion'] = fecha_pago + timedelta(seconds=60)
+    cliente['activo'] = True
+    guardar_datos()
+    print(f"\nPago registrado para {cliente['nombre']} el {fecha_pago.date()}.\n")
+
 
 def registrar_asistencia():
     cedula = input("Cédula del cliente: ")
